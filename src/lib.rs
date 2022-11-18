@@ -2,8 +2,10 @@
 
 extern crate reqwest;
 
-use reqwest::header::{HeaderMap, HeaderValue};
-use reqwest::Client;
+use reqwest::{
+    header::{HeaderMap, HeaderValue},
+    Client, Error, Response,
+};
 
 pub struct Config {
     project_id: String,
@@ -39,10 +41,11 @@ impl Config {
             token,
         }
     }
-    pub async fn query(&self, query: String) -> Result<reqwest::Response, reqwest::Error> {
+    pub async fn query(&self, query: String) -> Result<Response, Error> {
         let client = Client::new();
         let headers = construct_headers(&self);
         let url = construct_project_url(&self).replace("*", &query);
-        client.get(url).headers(headers).send().await
+        let response = client.get(url).headers(headers).send().await;
+        response
     }
 }
